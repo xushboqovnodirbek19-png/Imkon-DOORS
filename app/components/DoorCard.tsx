@@ -5,7 +5,7 @@ import { StockBadge } from "./StockBadge";
 
 /** Catalog card: thumbnail, name, price, limited-stock badge, key specs. */
 export function DoorCard({ door, compact = false }: { door: Door; compact?: boolean }) {
-  const thumb = door.image_urls?.[0];
+  const thumb = firstImage(door.image_urls);
 
   return (
     <Link
@@ -20,7 +20,8 @@ export function DoorCard({ door, compact = false }: { door: Door; compact?: bool
           <img
             src={thumb}
             alt={door.name}
-            loading="lazy"
+            loading="eager"
+            decoding="async"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -50,6 +51,25 @@ export function DoorCard({ door, compact = false }: { door: Door; compact?: bool
       </div>
     </Link>
   );
+}
+
+/**
+ * Resolve the card thumbnail — the same first photo the detail page shows.
+ * `image_urls` normally arrives as a JS array, but guard against a Postgres
+ * array literal ("{url1,url2}") slipping through so the card never silently
+ * renders nothing. Returns the first usable http(s) or root-relative URL.
+ */
+function firstImage(urls: Door["image_urls"]): string | undefined {
+  const list = Array.isArray(urls)
+    ? urls
+    : typeof urls === "string"
+      ? urls.replace(/^\{|\}$/g, "").split(",")
+      : [];
+  for (const raw of list) {
+    const url = String(raw).trim().replace(/^"|"$/g, "");
+    if (/^https?:\/\//i.test(url) || url.startsWith("/")) return url;
+  }
+  return undefined;
 }
 
 function DoorGlyph() {
