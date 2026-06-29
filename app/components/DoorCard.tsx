@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import type { Door } from "@/lib/types";
 import { groupUzs } from "@/lib/format";
@@ -6,6 +9,12 @@ import { StockBadge } from "./StockBadge";
 /** Catalog card: thumbnail, name, price, limited-stock badge, key specs. */
 export function DoorCard({ door, compact = false }: { door: Door; compact?: boolean }) {
   const thumb = firstImage(door.image_urls);
+  // If the photo URL is missing OR fails to load (e.g. an external placeholder
+  // host is blocked/unreachable), fall back to a door-tinted placeholder so the
+  // card always shows a product visual — the same idea as the detail screen's
+  // procedural door — instead of looking empty.
+  const [imgOk, setImgOk] = useState(true);
+  const tint = doorColor(door);
 
   return (
     <Link
@@ -15,19 +24,24 @@ export function DoorCard({ door, compact = false }: { door: Door; compact?: bool
       }`}
     >
       <div className="relative aspect-[4/5] bg-panel-2">
-        {thumb ? (
+        {thumb && imgOk ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={thumb}
             alt={door.name}
             loading="eager"
             decoding="async"
+            onError={() => setImgOk(false)}
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-2">
-            <DoorGlyph />
-            <span className="eyebrow text-muted-2">Mahsulot foto</span>
+          <div
+            className="flex h-full w-full items-center justify-center"
+            style={{
+              background: `linear-gradient(165deg, ${tint}33, #15120d 70%)`,
+            }}
+          >
+            <DoorPreview color={tint} />
           </div>
         )}
         <div className="absolute left-2 top-2 flex gap-1">
@@ -72,11 +86,18 @@ function firstImage(urls: unknown): string | undefined {
   return undefined;
 }
 
-function DoorGlyph() {
+/** A valid hex color for the placeholder door, from the door's spec. */
+function doorColor(door: Door): string {
+  const c = door.specs?.color;
+  return typeof c === "string" && /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : "#3f3f46";
+}
+
+/** Filled door silhouette tinted with the door's color (no network needed). */
+function DoorPreview({ color }: { color: string }) {
   return (
-    <svg width="38" height="54" viewBox="0 0 38 54" fill="none">
-      <rect x="2" y="2" width="34" height="50" rx="4" stroke="#6F6658" strokeWidth="2" />
-      <rect x="9" y="12" width="11" height="22" rx="2" stroke="#6F6658" strokeWidth="1.5" />
+    <svg width="60" height="86" viewBox="0 0 38 54" fill="none" aria-hidden>
+      <rect x="2" y="2" width="34" height="50" rx="4" fill={color} stroke="#6F6658" strokeWidth="1.5" />
+      <rect x="9" y="12" width="11" height="22" rx="2" stroke="rgba(241,236,226,0.28)" strokeWidth="1.5" />
       <rect x="17" y="24" width="2.4" height="6" rx="1.2" fill="#C6A15B" />
     </svg>
   );
