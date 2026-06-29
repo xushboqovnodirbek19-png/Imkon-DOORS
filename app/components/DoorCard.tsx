@@ -59,8 +59,8 @@ export function DoorCard({ door, compact = false }: { door: Door; compact?: bool
  * array literal ("{url1,url2}") slipping through so the card never silently
  * renders nothing. Returns the first usable http(s) or root-relative URL.
  */
-function firstImage(urls: Door["image_urls"]): string | undefined {
-  const list = Array.isArray(urls)
+function firstImage(urls: unknown): string | undefined {
+  const list: unknown[] = Array.isArray(urls)
     ? urls
     : typeof urls === "string"
       ? urls.replace(/^\{|\}$/g, "").split(",")
