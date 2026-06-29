@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/*
+ * IMKON Doors design system — dark luxury (from the IMKON_Doors design).
+ * Warm near-black surfaces, gold accents, cream text. Mobile-first for a
+ * Telegram Mini App on a mid-range Android phone.
+ */
+@theme inline {
+  /* Surfaces */
+  --color-ink: #16130e; /* page background */
+  --color-panel: #201c15; /* card / surface */
+  --color-panel-2: #14110c; /* deeper surface */
+  --color-line: #2e281e; /* hairline border */
+  --color-line-2: #34301f;
+
+  /* Gold accents */
+  --color-gold: #c6a15b;
+  --color-gold-bright: #d8b774;
+
+  /* Text */
+  --color-cream: #f1ece2;
+  --color-cream-dim: #cfc8ba;
+  --color-muted: #9d9588;
+  --color-muted-2: #857d70;
+
+  /* Status */
+  --color-success: #84be8c;
+
+  /* Fonts */
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-sora);
+  --font-mono: var(--font-space-mono);
+
+  --color-background: var(--color-ink);
+  --color-foreground: var(--color-cream);
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  font-family: var(--font-sans), system-ui, -apple-system, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Gold gradient — primary CTAs and the brand mark. */
+.bg-gold-gradient {
+  background: linear-gradient(180deg, #d8b774, #c6a15b);
+}
+/* Panel gradient — cards and large surfaces. */
+.bg-panel-gradient {
+  background: linear-gradient(165deg, #231f17, #15120d);
+}
+.shadow-gold {
+  box-shadow: 0 12px 28px rgba(198, 161, 91, 0.25);
+}
+
+/* Space Mono uppercase eyebrow label used throughout the design. */
+.eyebrow {
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Thin, themed scrollbars for horizontal rails. */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
