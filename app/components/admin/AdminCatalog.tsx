@@ -5,14 +5,26 @@ import type { Door } from "@/lib/types";
 import { formatUzs } from "@/lib/format";
 import { AdminDoorForm } from "./AdminDoorForm";
 
-/** Admin catalog management (§11): list, create, edit, hide doors. */
-export function AdminDashboard({ adminId }: { adminId: number }) {
+/**
+ * Admin catalog management (§11): list, create, edit, hide doors.
+ * Rendered inside the admin dashboard shell. While the create/edit form is
+ * open it takes over the screen, so we notify the shell to hide its chrome.
+ */
+export function AdminCatalog({
+  onFullscreenChange,
+}: {
+  onFullscreenChange?: (fullscreen: boolean) => void;
+}) {
   const [doors, setDoors] = useState<Door[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Door | "new" | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   const refresh = () => setReloadKey((k) => k + 1);
+
+  useEffect(() => {
+    onFullscreenChange?.(editing !== null);
+  }, [editing, onFullscreenChange]);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,11 +53,6 @@ export function AdminDashboard({ adminId }: { adminId: number }) {
     refresh();
   }
 
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    window.location.href = "/admin/login";
-  }
-
   if (editing) {
     return (
       <AdminDoorForm
@@ -60,23 +67,7 @@ export function AdminDashboard({ adminId }: { adminId: number }) {
   }
 
   return (
-    <div className="min-h-dvh bg-ink p-4">
-      <header className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="eyebrow text-gold/70">IMKON · Admin</p>
-          <h1 className="font-display text-lg font-semibold text-cream">
-            Katalog boshqaruvi
-          </h1>
-          <p className="font-mono text-[11px] text-muted-2">ID: {adminId}</p>
-        </div>
-        <button
-          onClick={logout}
-          className="rounded-lg border border-line px-3 py-1.5 text-xs text-cream-dim"
-        >
-          Chiqish
-        </button>
-      </header>
-
+    <div className="p-4">
       <button
         onClick={() => setEditing("new")}
         className="mb-5 w-full rounded-xl bg-gold-gradient py-2.5 text-sm font-bold text-ink shadow-gold"
@@ -91,6 +82,11 @@ export function AdminDashboard({ adminId }: { adminId: number }) {
       )}
       {doors === null && !error && (
         <p className="text-sm text-muted">Yuklanmoqda…</p>
+      )}
+      {doors?.length === 0 && (
+        <p className="py-10 text-center text-sm text-muted">
+          Hali eshik yo&apos;q. &quot;+ Yangi eshik&quot; bilan qo&apos;shing.
+        </p>
       )}
 
       <ul className="space-y-2.5">

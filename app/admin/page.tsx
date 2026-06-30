@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getAdminFromCookies } from "@/lib/admin/auth";
-import { AdminDashboard } from "@/app/components/admin/AdminDashboard";
+import { getAdminFromCookies, adminAllowlist } from "@/lib/admin/auth";
+import { AdminShell } from "@/app/components/admin/AdminShell";
 
 export const runtime = "nodejs";
 
@@ -8,5 +8,5 @@ export const runtime = "nodejs";
 export default async function AdminPage() {
   const adminId = await getAdminFromCookies();
   if (adminId === null) redirect("/admin/login");
-  return <AdminDashboard adminId={adminId} />;
+  return <AdminShell adminId={adminId} adminCount={adminAllowlist().length} />;
 }
